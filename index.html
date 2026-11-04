@@ -1,0 +1,1297 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>まちがいカード</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' blob: data:; connect-src 'self' https://api.anthropic.com blob: data:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="description" content="中学受験の過去問の、まちがえた問題だけを復習する暗記カード">
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#E9EDF2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#11141B" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="まちがいカード">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E9EDF2; --surface:#FFFFFF; --surface2:#F3F5F8; --ink:#1C2333; --ink2:#566076; --ink3:#8B93A4;
+  --line:#D5DBE4; --rule:#CFDDF0; --redline:#E26767;
+  --math:#2B66D4; --jp:#C93F37; --sci:#1D8C62; --soc:#B97510;
+  --ok:#1D8C62; --ng:#C93F37; --shadow:0 1px 0 rgba(28,35,51,.06), 0 8px 24px -12px rgba(28,35,51,.25);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141B; --surface:#1C212C; --surface2:#161A23; --ink:#E8EBF1; --ink2:#A3ABBC; --ink3:#727B8E;
+    --line:#2E3545; --rule:#2B3A52; --redline:#C25A5A;
+    --math:#6E9CF2; --jp:#F07C73; --sci:#4FC497; --soc:#E7AE4C;
+    --ok:#4FC497; --ng:#F07C73; --shadow:0 1px 0 rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.7);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141B; --surface:#1C212C; --surface2:#161A23; --ink:#E8EBF1; --ink2:#A3ABBC; --ink3:#727B8E;
+  --line:#2E3545; --rule:#2B3A52; --redline:#C25A5A;
+  --math:#6E9CF2; --jp:#F07C73; --sci:#4FC497; --soc:#E7AE4C;
+  --ok:#4FC497; --ng:#F07C73; --shadow:0 1px 0 rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.7);
+  color-scheme:dark;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+img{max-width:100%;display:block}
+:focus-visible{outline:2px solid var(--sub,var(--math));outline-offset:2px}
+.wrap{max-width:640px;margin:0 auto;padding:0 0 120px}
+
+/* top bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg)}
+.bar-in{display:flex;align-items:center;gap:8px;min-height:56px;padding:6px 12px}
+.brand{font-weight:900;font-size:20px;letter-spacing:.02em;padding-left:6px}
+.brand small{display:block;font-size:11px;font-weight:500;color:var(--ink3);letter-spacing:0;margin-top:-4px}
+.bar-title{flex:1;margin:0;font-size:17px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:0;background:transparent;display:grid;place-items:center;flex:none}
+.icon-btn:active{background:var(--surface2)}
+.icon-btn svg{width:22px;height:22px}
+
+/* subject tabs: index-card file tabs */
+.tabs{display:flex;gap:6px;padding:4px 16px 0}
+.tab{flex:1;border:0;padding:11px 0 9px;border-radius:14px 14px 0 0;background:transparent;color:var(--ink3);font-weight:700;font-size:15px;position:relative;border-top:4px solid transparent}
+.tab::after{content:"";position:absolute;left:30%;right:30%;bottom:6px;height:3px;border-radius:2px;background:var(--c);opacity:.35}
+.tab[aria-selected="true"]{background:var(--surface);color:var(--c);border-top-color:var(--c)}
+.tab[aria-selected="true"]::after{display:none}
+.sheet{background:var(--surface);margin:0 16px;border-radius:0 0 20px 20px;box-shadow:var(--shadow);overflow:hidden}
+.sheet.first-tab{border-top-left-radius:0}
+.sheet.round{border-radius:20px}
+
+/* home drawers */
+.drawer{padding:20px 20px;border-top:1px solid var(--line)}
+.drawer:first-child{border-top:0}
+.drawer-head{display:flex;align-items:baseline;gap:12px}
+.drawer-name{font-weight:700;font-size:17px}
+.drawer-sub{color:var(--ink2);font-size:13px;margin-top:2px}
+.count{margin-left:auto;flex:none;white-space:nowrap;font-weight:900;font-size:40px;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.count small{font-size:14px;font-weight:700;margin-left:2px;letter-spacing:0;color:var(--ink2)}
+.drawer-main{background:color-mix(in srgb,var(--sub) 8%,var(--surface))}
+.drawer-main .count{color:var(--sub);font-size:56px}
+.row-btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+
+.btn{border:0;border-radius:12px;padding:12px 18px;font-weight:700;font-size:15px;background:var(--surface2);color:var(--ink);display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn svg{width:18px;height:18px}
+.btn-primary{background:var(--sub);color:#fff}
+:root[data-theme="dark"] .btn-primary{color:#11141B}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn-primary{color:#11141B}}
+.btn-ghost{background:transparent;border:1.5px solid var(--line)}
+.btn-wide{width:100%}
+.btn:disabled{opacity:.45;cursor:default}
+.btn-danger{background:transparent;color:var(--ng);border:1.5px solid color-mix(in srgb,var(--ng) 40%,transparent)}
+
+.fab-bar{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top,var(--bg) 65%,transparent);z-index:6}
+.fab-bar .inner{max-width:608px;margin:0 auto;display:flex;gap:8px}
+.fab-bar .btn{flex:1;padding:15px 18px;font-size:16px;border-radius:16px;box-shadow:var(--shadow)}
+
+.note{color:var(--ink3);font-size:12.5px;padding:14px 22px 0;text-align:center}
+
+/* lists */
+.section-h{display:flex;align-items:center;gap:10px;padding:18px 20px 10px}
+.section-h h2{margin:0;font-size:15px;color:var(--ink2);font-weight:700}
+.section-h .btn{margin-left:auto;padding:9px 14px;font-size:14px}
+.empty{padding:36px 24px 40px;text-align:center;color:var(--ink2)}
+.empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
+
+.page-row{display:flex;gap:14px;align-items:center;padding:12px 16px;border-top:1px solid var(--line);background:transparent;border-left:0;border-right:0;border-bottom:0;width:100%;text-align:left}
+.page-row:first-child{border-top:0}
+.page-thumb{width:56px;height:72px;border-radius:6px;object-fit:cover;object-position:top;background:var(--surface2);flex:none;border:1px solid var(--line)}
+.page-meta{flex:1;min-width:0}
+.page-title{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.page-sub{font-size:13px;color:var(--ink2)}
+.pill{display:inline-block;font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px;background:color-mix(in srgb,var(--sub) 14%,transparent);color:var(--sub)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;padding:4px 16px 16px}
+.mini{border:0;padding:0;background:var(--surface);border-radius:10px;overflow:hidden;text-align:left;box-shadow:var(--shadow);border-top:4px solid var(--sub);display:flex;flex-direction:column}
+.mini-img{height:110px;background:#fff;display:flex;align-items:flex-start;justify-content:center;overflow:hidden;border-bottom:1px solid var(--line)}
+.mini-img img{width:100%;height:100%;object-fit:contain;object-position:top}
+.mini-body{padding:8px 10px 10px}
+.mini-label{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-sub{font-size:11.5px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.dots{display:inline-flex;gap:5px;vertical-align:middle}
+.dot{width:11px;height:11px;border-radius:50%;border:1.5px solid var(--line);display:inline-block}
+.dot.ok{background:var(--ok);border-color:var(--ok)}
+.dot.ng{background:var(--ng);border-color:var(--ng)}
+.dots-wrap{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink3);margin-top:4px}
+
+/* index card faces */
+.card-front{background:#fff;border-radius:6px;box-shadow:var(--shadow);margin:8px 16px 0;padding:10px;border-top:5px solid var(--sub);position:relative}
+.card-front img{margin:0 auto;border-radius:2px}
+.card-label{position:absolute;top:-1px;right:12px;transform:translateY(-100%);background:var(--sub);color:#fff;font-size:12px;font-weight:700;padding:3px 10px 2px;border-radius:8px 8px 0 0}
+.card-back{margin:14px 16px 0;border-radius:6px;box-shadow:var(--shadow);background-color:var(--surface);background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 31px,var(--rule) 31px,var(--rule) 32px);background-position:0 12px;border-top:2px solid var(--redline);padding:12px 18px 18px;line-height:32px}
+.field{margin:0}
+.field-k{font-size:12px;font-weight:700;color:var(--sub);line-height:32px}
+.field-v{white-space:pre-wrap;word-break:break-word;font-size:16px}
+.field-v.big{font-size:24px;font-weight:900}
+.field-v.muted{color:var(--ink3)}
+.card-back textarea,.card-back input[type=text]{width:100%;border:0;background:transparent;resize:none;line-height:32px;padding:0;font-size:16px;outline:none;min-height:32px;display:block}
+.card-back textarea:focus,.card-back input:focus{background:color-mix(in srgb,var(--sub) 6%,transparent)}
+.card-back .ansimg{margin:6px 0;border-radius:4px;border:1px solid var(--line);background:#fff}
+
+/* study */
+.progress{height:4px;background:var(--line);margin:0 16px;border-radius:2px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--sub);transition:width .25s}
+.study-meta{display:flex;align-items:center;justify-content:space-between;padding:10px 20px 18px;font-size:13px;color:var(--ink2)}
+.judge{display:flex;gap:10px}
+.judge .btn{flex:1;padding:16px;font-size:17px;border-radius:16px}
+.btn-ng{background:color-mix(in srgb,var(--ng) 14%,var(--surface));color:var(--ng)}
+.btn-ok{background:var(--ok);color:#fff}
+.reveal{animation:rise .28s ease-out}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.reveal{animation:none}.progress i{transition:none}}
+.result{text-align:center;padding:40px 24px 24px}
+.result .big{font-size:64px;font-weight:900;line-height:1;color:var(--sub);font-variant-numeric:tabular-nums}
+.result p{color:var(--ink2);margin:10px 0 0}
+
+/* editor */
+.meta{padding:16px}
+.label-sm{display:block;font-size:12px;font-weight:700;color:var(--ink2);margin:0 0 6px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:1.5px solid var(--line);background:transparent;border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px;color:var(--ink2)}
+.chip[aria-pressed="true"]{background:var(--c);border-color:var(--c);color:#fff}
+.text-in{width:100%;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 12px;font-size:16px}
+.text-in:focus{outline:none;border-color:var(--sub)}
+.toolbar{display:flex;gap:8px;padding:0 16px 10px;flex-wrap:wrap}
+.toolbar .btn{flex:1;padding:11px 12px;font-size:14px;min-width:140px}
+.btn[aria-pressed="true"]{background:var(--sub);color:#fff}
+.hint{font-size:12.5px;color:var(--ink2);padding:0 18px 10px}
+.stage{position:relative;margin:0 16px;user-select:none;-webkit-user-select:none;background:#fff;border-radius:4px;overflow:hidden;box-shadow:var(--shadow)}
+.stage img{width:100%;pointer-events:none;-webkit-user-drag:none}
+.stage.adding{touch-action:none;cursor:crosshair}
+.stage.adding::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 3px var(--sub);pointer-events:none}
+.box{position:absolute;border:2px dashed #7B8496;background:rgba(123,132,150,.08);border-radius:3px}
+.box.rv{border:2.5px solid var(--sub);background:color-mix(in srgb,var(--sub) 14%,transparent);border-style:solid}
+.box.sel{outline:3px solid color-mix(in srgb,var(--sub) 45%,transparent);touch-action:none;z-index:2}
+.box .tag{position:absolute;left:-2px;top:-2px;font-size:11px;font-weight:700;background:#7B8496;color:#fff;padding:0 6px;border-radius:3px 0 4px 0;line-height:18px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.box.rv .tag{background:var(--sub)}
+.handle{position:absolute;right:-13px;bottom:-13px;width:26px;height:26px;border-radius:50%;background:var(--sub);border:3px solid #fff;touch-action:none;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.boxlist{margin:14px 16px 0;background:var(--surface);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.boxrow{display:flex;align-items:center;gap:8px;padding:8px 10px 8px 14px;border-top:1px solid var(--line)}
+.boxrow:first-child{border-top:0}
+.boxrow.sel{background:color-mix(in srgb,var(--sub) 7%,transparent)}
+.boxrow input[type=text]{flex:1;min-width:0;border:0;background:transparent;font-weight:700;padding:6px 2px;font-size:15px}
+.boxrow input[type=text]:focus{outline:none;border-bottom:2px solid var(--sub)}
+.tog{border:1.5px solid var(--line);background:transparent;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;color:var(--ink2);white-space:nowrap}
+.tog[aria-pressed="true"]{background:var(--sub);border-color:var(--sub);color:#fff}
+.picker{margin:0 16px;border:2px dashed var(--line);border-radius:18px;padding:44px 20px;text-align:center;color:var(--ink2);display:block;background:var(--surface)}
+.picker b{display:block;color:var(--ink);font-size:17px;margin:8px 0 2px}
+.picker svg{width:40px;height:40px;color:var(--sub)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+.tagbox{display:flex;flex-wrap:wrap;gap:6px;align-items:center;line-height:1.4}
+.tagchip{display:inline-flex;align-items:center;font-size:13px;font-weight:700;padding:2px 2px 2px 10px;border-radius:999px;background:color-mix(in srgb,var(--sub) 13%,transparent);color:var(--sub)}
+.tagchip button{border:0;background:transparent;color:inherit;width:24px;height:24px;padding:0;border-radius:50%;font-size:15px;line-height:1;display:grid;place-items:center}
+.tag-in{flex:1;min-width:120px;border:0 !important;background:transparent !important;padding:6px 2px !important;font-size:15px !important;outline:none;line-height:1.4 !important;min-height:0 !important}
+.tag-sugg{flex-basis:100%;display:none;gap:6px;flex-wrap:wrap;padding:2px 0 6px}
+.tagbox.open .tag-sugg{display:flex}
+.sugg{border:1.5px dashed var(--line);background:var(--surface);border-radius:999px;padding:3px 11px;font-size:13px;color:var(--ink2);line-height:1.4}
+.sugg.near{border-style:solid;border-color:color-mix(in srgb,var(--sub) 45%,transparent);color:var(--sub)}
+.sugg.new{border-style:solid;background:var(--sub);border-color:var(--sub);color:#fff}
+.sugg-h{font-size:11.5px;color:var(--ink3);flex-basis:100%}
+.boxrow{flex-wrap:wrap}
+.boxrow .tagbox{flex-basis:100%;padding:0 0 4px}
+.mini-tags{font-size:11px;font-weight:700;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.filter{display:flex;gap:6px;overflow-x:auto;padding:0 16px 12px;scrollbar-width:none}
+.filter::-webkit-scrollbar{display:none}
+.filter .chip{flex:none;--c:var(--sub)}
+.study-tags{font-size:12px;font-weight:700;color:var(--sub)}
+.badge{display:inline-block;font-size:11px;font-weight:700;line-height:18px;padding:0 7px;border-radius:6px;background:color-mix(in srgb,var(--soc) 18%,transparent);color:var(--soc);margin-left:6px;vertical-align:middle}
+.badge.book{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 14px}
+.thumbs .th{position:relative}
+.thumbs img{width:76px;height:100px;object-fit:cover;border-radius:6px;border:1px solid var(--line);background:#fff}
+.thumbs button{position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:50%;border:2px solid var(--surface);background:var(--ink);color:var(--bg);font-size:13px;line-height:1;padding:0}
+.ans-item{padding:16px;border-top:1px solid var(--line)}
+.ans-item:first-child{border-top:0}
+.ans-item.off{opacity:.55}
+.ans-head{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+.ans-thumb{width:110px;height:70px;object-fit:contain;object-position:top left;background:#fff;border:1px solid var(--line);border-radius:4px;flex:none}
+.ans-head .grow{flex:1;min-width:0}
+.ans-item .label-sm{margin-top:10px}
+textarea.text-in{resize:vertical;min-height:80px;line-height:1.65;display:block}
+.warn{font-size:12.5px;color:var(--soc);margin-top:6px}
+.busy{padding:48px 24px;text-align:center;color:var(--ink2)}
+.busy b{display:block;color:var(--ink);font-size:17px;margin-bottom:6px}
+.spin{width:28px;height:28px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--sub);margin:0 auto 16px;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+.mini-ai{font-size:12px;font-weight:500;padding:5px 11px;margin-top:4px}
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:12px;font-size:14px;font-weight:500;opacity:0;pointer-events:none;transition:.25s;z-index:20;max-width:calc(100% - 32px);text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.loading{display:grid;place-items:center;min-height:60vh;color:var(--ink3)}
+.detail-actions{display:flex;flex-direction:column;gap:8px;padding:18px 16px 0}
+.status-line{display:flex;align-items:center;gap:10px;padding:16px 20px 0;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><div class="loading">読み込み中…</div></div>
+<div class="toast" id="toast" role="status"></div>
+<input type="file" id="fileIn" accept="image/*" class="sr" tabindex="-1">
+<input type="file" id="ansIn" accept="image/*" class="sr" tabindex="-1">
+<input type="file" id="bkIn" accept="application/json,.json" class="sr" tabindex="-1">
+<input type="file" id="ansPageIn" accept="image/*" multiple class="sr" tabindex="-1">
+<script>
+(() => {
+"use strict";
+const SUBJECTS = [
+  { id: "math", name: "算数" },
+  { id: "jp", name: "国語" },
+  { id: "sci", name: "理科" },
+  { id: "soc", name: "社会" },
+];
+const subName = id => (SUBJECTS.find(s => s.id === id) || SUBJECTS[0]).name;
+const ICON = {
+  back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+  cam: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+  spark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+  book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M9 8h7M9 11.5h5"/></svg>',
+  play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg>',
+};
+
+/* ---------- utils ---------- */
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 9);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const clean = o => JSON.parse(JSON.stringify(o));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+let toastT;
+function toast(msg) { const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 2600); }
+function withTimeout(p, ms) { return Promise.race([p, new Promise((_, r) => setTimeout(() => r(new Error("timeout")), ms))]); }
+
+async function loadBitmap(blob) {
+  try { return await createImageBitmap(blob); } catch (e) {
+    return await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = URL.createObjectURL(blob); });
+  }
+}
+const toBlob = (c, q) => new Promise(r => c.toBlob(r, "image/jpeg", q));
+async function resize(bmp, max, q = 0.86) {
+  const W = bmp.width, H = bmp.height, s = Math.min(1, max / Math.max(W, H));
+  const c = document.createElement("canvas"); c.width = Math.round(W * s); c.height = Math.round(H * s);
+  const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(bmp, 0, 0, c.width, c.height);
+  return { blob: await toBlob(c, q), w: c.width, h: c.height };
+}
+async function cropBlob(bmp, b) {
+  const W = bmp.width, H = bmp.height;
+  const sx = Math.round(b.x * W), sy = Math.round(b.y * H), sw = Math.max(4, Math.round(b.w * W)), sh = Math.max(4, Math.round(b.h * H));
+  const c = document.createElement("canvas"); c.width = sw; c.height = sh;
+  const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, sw, sh); x.drawImage(bmp, sx, sy, sw, sh, 0, 0, sw, sh);
+  return toBlob(c, 0.9);
+}
+
+/* ---------- storage: cloud (db + assets) or this browser (IndexedDB) ---------- */
+const Store = {
+  mode: "loading", db: null, assets: null, idb: null, urls: new Map(),
+  async init() {
+    let db = null, assets = null;
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+    if (db) {
+      this.db = db; this.assets = assets; this.mode = "cloud";
+      const [p, c] = await withTimeout(Promise.all([db.collection("pages").get(), db.collection("cards").get()]), 15000);
+      return { pages: p.docs.map(d => ({ ...d.data(), id: d.id })), cards: c.docs.map(d => ({ ...d.data(), id: d.id })) };
+    }
+    this.mode = "local";
+    this.idb = await new Promise((res, rej) => {
+      const r = indexedDB.open("machigai-card", 1);
+      r.onupgradeneeded = () => { ["pages", "cards", "blobs"].forEach(n => r.result.createObjectStore(n, { keyPath: "id" })); };
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    });
+    return { pages: await this._all("pages"), cards: await this._all("cards") };
+  },
+  _tx(store, mode, fn) {
+    return new Promise((res, rej) => {
+      const t = this.idb.transaction(store, mode); const s = t.objectStore(store); const r = fn(s);
+      t.oncomplete = () => res(r && r.result); t.onerror = () => rej(t.error);
+    });
+  },
+  _all(n) { return this._tx(n, "readonly", s => s.getAll()).then(v => v || []); },
+  canUpload() { return this.mode === "local" || !!this.assets; },
+  async put(col, obj) {
+    if (this.mode === "cloud") return this.db.collection(col).doc(obj.id).set(clean(obj));
+    return this._tx(col, "readwrite", s => s.put(clean(obj)));
+  },
+  async del(col, id) {
+    if (this.mode === "cloud") return this.db.collection(col).doc(id).delete();
+    return this._tx(col, "readwrite", s => s.delete(id));
+  },
+  async putBlob(blob) {
+    if (this.mode === "cloud") { const r = await this.assets.upload(blob, { type: "image/jpeg" }); return r.id; }
+    const id = uid(); await this._tx("blobs", "readwrite", s => s.put({ id, blob })); return id;
+  },
+  async delBlob(id) {
+    if (!id) return;
+    try {
+      if (this.mode === "cloud") await this.assets.delete(id);
+      else { await this._tx("blobs", "readwrite", s => s.delete(id)); const u = this.urls.get(id); if (u) { URL.revokeObjectURL(u); this.urls.delete(id); } }
+    } catch (e) {}
+  },
+  async getBlob(id) {
+    if (this.mode === "cloud") { const r = await fetch("/_blob/" + id); if (!r.ok) throw new Error("image"); return r.blob(); }
+    const row = await this._tx("blobs", "readonly", s => s.get(id)); if (!row) throw new Error("image"); return row.blob;
+  },
+  async url(id) {
+    if (this.mode === "cloud") return "/_blob/" + id;
+    if (this.urls.has(id)) return this.urls.get(id);
+    const u = URL.createObjectURL(await this.getBlob(id)); this.urls.set(id, u); return u;
+  },
+};
+async function hydrateImages() {
+  for (const im of document.querySelectorAll("img[data-blob]")) {
+    const id = im.dataset.blob; if (!id) continue;
+    try { im.src = await Store.url(id); } catch (e) {}
+  }
+}
+
+/* ---------- settings ---------- */
+const MODEL = "claude-sonnet-5-5";      // 範囲検出・解答冊子の読み取り
+const MODEL_THINK = "claude-opus-5-5";  // 解説の下書き・問題を解く
+const KEY_LS = "machigai-card:apikey";
+const getKey = () => { try { return localStorage.getItem(KEY_LS) || ""; } catch (e) { return ""; } };
+const setKey = v => { try { v ? localStorage.setItem(KEY_LS, v) : localStorage.removeItem(KEY_LS); } catch (e) {} };
+const blobToDataURL = b => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(b); });
+const dataURLToBlob = async u => (await fetch(u)).blob();
+
+/* ---------- AI helpers ---------- */
+async function callClaude(content, opts = {}) {
+  const key = getKey();
+  if (!key) { const e = new Error("nokey"); e.status = "nokey"; throw e; }
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+    body: JSON.stringify({ model: opts.model || MODEL, max_tokens: opts.maxTokens || 4000, messages: [{ role: "user", content }] }),
+  });
+  if (!res.ok) {
+    let msg = ""; try { const j = await res.json(); msg = (j.error && j.error.message) || ""; } catch (e) {}
+    const er = new Error(msg); er.status = res.status; throw er;
+  }
+  const j = await res.json();
+  return (j.content || []).filter(c => c.type === "text").map(c => c.text).join("");
+}
+function parseJSON(text) {
+  const a = text.indexOf("{"), b = text.lastIndexOf("}");
+  if (a < 0 || b <= a) throw new Error("json");
+  return JSON.parse(text.slice(a, b + 1));
+}
+async function imgPart(blob, max = 1600) {
+  const r = await resize(await loadBitmap(blob), max, 0.85);
+  return { type: "image", source: { type: "base64", media_type: "image/jpeg", data: (await blobToDataURL(r.blob)).split(",")[1] } };
+}
+function aiErrMsg(err) {
+  const st = err && err.status;
+  if (st === "nokey") return "設定でAPIキーを入れると使えます";
+  if (st === 401 || st === 403) return "APIキーが正しくないようです。設定で確かめてください";
+  if (st === 429 || st === 529) return "混み合っています。少し待ってからもう一度どうぞ";
+  if (/credit|billing/i.test(String(err && err.message))) return "APIの残高を確かめてください";
+  if (!navigator.onLine) return "オフラインです。電波のある場所でどうぞ";
+  return "うまく読み取れませんでした。もう一度お試しください";
+}
+async function aiExplain(card) {
+  const parts = [await imgPart(await Store.getBlob(card.imgId), 1400)];
+  const sub = subName(card.subject);
+  const prompt = card.answer
+    ? `画像は中学受験の過去問（教科：${sub}）の1問です。正解は「${card.answer}」です。
+小学5〜6年生が読んでわかる言葉で、この問題の解き方を説明してください。
+- 正解にたどりつく手順を、式や考え方とともに、300字以内で。
+- 最後に「まちがえやすい点：」として1文。
+- 正解は変えないでください。正解が問題と合わないと思ったら、check にその理由を短く書いてください（合っていれば空文字）。
+次の形のJSONだけを返してください：{"explanation":"…","check":""}`
+    : `画像は中学受験の過去問（教科：${sub}）の1問です。正解はわかっていません。
+この問題を解いて、正解と、小学5〜6年生が読んでわかる解き方を書いてください。
+- answer：正解を短く（記号問題は記号、数値は単位も、記述は解答例）。
+- explanation：手順を式や考え方とともに300字以内で。最後に「まちがえやすい点：」として1文。
+- confidence：自信の度合いを high / medium / low で。
+次の形のJSONだけを返してください：{"answer":"…","explanation":"…","confidence":"high"}`;
+  parts.push({ type: "text", text: prompt });
+  const data = parseJSON(await callClaude(parts, { model: MODEL_THINK, maxTokens: 3000 }));
+  return {
+    answer: card.answer ? null : String(data.answer || "").trim(),
+    explanation: String(data.explanation || "").trim(),
+    check: String(data.check || "").trim(),
+    lowConfidence: !card.answer && data.confidence && data.confidence !== "high",
+  };
+}
+
+/* ---------- tags ---------- */
+const TAGS_LS = "machigai-card:tags";
+const normTag = t => String(t || "").replace(/^[#＃\s]+/, "").replace(/\s+/g, " ").trim().slice(0, 20);
+function tagHist() { try { return JSON.parse(localStorage.getItem(TAGS_LS) || "{}") || {}; } catch (e) { return {}; } }
+function pushHist(sub, tag) {
+  const h = tagHist(); const a = (h[sub] || []).filter(t => t !== tag); a.unshift(tag); h[sub] = a.slice(0, 80);
+  try { localStorage.setItem(TAGS_LS, JSON.stringify(h)); } catch (e) {}
+}
+function tagCtx(ctx) {
+  if (ctx === "card") {
+    const c = S.cards.find(x => x.id === S.cardId); if (!c) return null;
+    return { sub: c.subject, tags: c.tags || [], near: S.cards.filter(x => x.pageId === c.pageId && x.id !== c.id).flatMap(x => x.tags || []),
+      set: t => saveCard(c, { tags: t }) };
+  }
+  const e = S.edit; if (!e) return null; const b = e.boxes.find(x => "box:" + x.id === ctx); if (!b) return null;
+  return { sub: e.subject, tags: b.tags || [], near: e.boxes.filter(x => x !== b).flatMap(x => x.tags || []),
+    set: t => { b.tags = t; e.dirty = true; } };
+}
+function suggestions(ctx, q) {
+  const c = tagCtx(ctx); if (!c) return [];
+  const have = new Set(c.tags), seen = new Set(), out = [];
+  const count = {};
+  S.cards.filter(x => x.subject === c.sub).forEach(x => (x.tags || []).forEach(t => { count[t] = (count[t] || 0) + 1; }));
+  const fromCards = Object.keys(count).sort((a, b) => count[b] - count[a]);
+  const push = (t, near) => { if (!t || have.has(t) || seen.has(t)) return; seen.add(t); out.push({ t, near }); };
+  c.near.forEach(t => push(t, true));
+  (tagHist()[c.sub] || []).forEach(t => push(t, false));
+  fromCards.forEach(t => push(t, false));
+  const k = normTag(q).toLowerCase();
+  return (k ? out.filter(o => o.t.toLowerCase().includes(k)) : out).slice(0, 14);
+}
+function tagBox(ctx, tags) {
+  return `<div class="tagbox" data-tagbox="${esc(ctx)}">${(tags || []).map(t =>
+    `<span class="tagchip">#${esc(t)}<button data-act="tag-rm" data-ctx="${esc(ctx)}" data-tag="${esc(t)}" aria-label="${esc(t)}を外す">×</button></span>`).join("")}
+    <input class="tag-in" data-tagin="${esc(ctx)}" placeholder="${tags && tags.length ? "＋タグ" : "＋タグ（例：速さ、てこ）"}" enterkeyhint="done" autocomplete="off" aria-label="タグを追加">
+    <div class="tag-sugg"></div></div>`;
+}
+function fillSugg(input) {
+  const box = input.closest(".tagbox"), ctx = input.dataset.tagin, c = tagCtx(ctx); if (!box || !c) return;
+  const q = normTag(input.value), list = suggestions(ctx, input.value);
+  let html = "";
+  if (q && !c.tags.includes(q) && !list.some(o => o.t === q)) html += `<button class="sugg new" data-act="tag-add" data-ctx="${esc(ctx)}" data-tag="${esc(q)}">「${esc(q)}」を追加</button>`;
+  if (list.some(o => o.near)) html += `<span class="sugg-h">同じページで使ったタグ</span>` + list.filter(o => o.near).map(o => `<button class="sugg near" data-act="tag-add" data-ctx="${esc(ctx)}" data-tag="${esc(o.t)}">#${esc(o.t)}</button>`).join("");
+  const others = list.filter(o => !o.near);
+  if (others.length) html += `<span class="sugg-h">これまでの入力歴</span>` + others.map(o => `<button class="sugg" data-act="tag-add" data-ctx="${esc(ctx)}" data-tag="${esc(o.t)}">#${esc(o.t)}</button>`).join("");
+  if (!html) html = `<span class="sugg-h">${q ? "" : "まだ入力歴はありません。"}入力して決定を押すと追加されます</span>`;
+  box.querySelector(".tag-sugg").innerHTML = html; box.classList.add("open");
+}
+async function addTags(ctx, raw, refocus) {
+  const c = tagCtx(ctx); if (!c) return;
+  const add = String(raw || "").split(/[、,，]/).map(normTag).filter(Boolean);
+  const next = [...c.tags]; add.forEach(t => { if (!next.includes(t)) next.push(t); pushHist(c.sub, t); });
+  if (next.length === c.tags.length) return;
+  await c.set(next); render();
+  if (refocus) { const el = document.querySelector(`.tag-in[data-tagin="${CSS.escape(ctx)}"]`); if (el) { el.focus({ preventScroll: true }); fillSugg(el); } }
+}
+
+/* ---------- data check (読み込んだデータを安全な形にそろえる) ---------- */
+const ID_RE = /^[A-Za-z0-9_-]{1,64}$/;
+const SUB_IDS = ["math", "jp", "sci", "soc"];
+const okId = v => typeof v === "string" && ID_RE.test(v);
+const str = (v, max) => (typeof v === "string" ? v : v == null ? "" : String(v)).slice(0, max);
+const num01 = v => { const n = Number(v); return Number.isFinite(n) ? clamp(n, 0, 1) : 0; };
+const numAny = v => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
+function cleanPage(p) {
+  if (!p || !okId(p.id) || !okId(p.imgId) || !SUB_IDS.includes(p.subject)) return null;
+  return { id: p.id, subject: p.subject, title: str(p.title, 100) || "無題のページ", imgId: p.imgId,
+    w: numAny(p.w), h: numAny(p.h), createdAt: numAny(p.createdAt) };
+}
+function cleanCard(c) {
+  if (!c || !okId(c.id) || !okId(c.pageId) || !okId(c.imgId) || !SUB_IDS.includes(c.subject)) return null;
+  const b = c.box || {};
+  return { id: c.id, pageId: c.pageId, subject: c.subject, label: str(c.label, 60),
+    tags: Array.isArray(c.tags) ? [...new Set(c.tags.map(normTag).filter(Boolean))].slice(0, 20) : [],
+    box: { x: num01(b.x), y: num01(b.y), w: num01(b.w), h: num01(b.h) }, imgId: c.imgId,
+    answer: str(c.answer, 2000), point: str(c.point, 4000), explain: str(c.explain, 8000),
+    answerByAI: !!c.answerByAI, explainByAI: !!c.explainByAI,
+    ansImgId: okId(c.ansImgId) ? c.ansImgId : null,
+    status: ["none", "review", "cleared"].includes(c.status) ? c.status : "none",
+    history: Array.isArray(c.history) ? c.history.map(v => (v === 1 || v === true ? 1 : 0)).slice(-10) : [],
+    lastAt: numAny(c.lastAt), createdAt: numAny(c.createdAt), updatedAt: numAny(c.updatedAt) };
+}
+
+/* ---------- state ---------- */
+const S = { view: "loading", subject: "math", pages: [], cards: [], stack: [], pageId: null, cardId: null, box: "review", edit: null, study: null, canImages: !!getKey(), tagFilter: null };
+const $app = document.getElementById("app");
+const pagesOf = sub => S.pages.filter(p => p.subject === sub).sort((a, b) => b.createdAt - a.createdAt);
+const cardsOf = (sub, status) => S.cards.filter(c => c.subject === sub && (!status || c.status === status));
+const pageOf = c => S.pages.find(p => p.id === c.pageId);
+const last3 = c => (c.history || []).slice(-3);
+const upsert = (arr, obj) => { const i = arr.findIndex(x => x.id === obj.id); if (i < 0) arr.push(obj); else arr[i] = obj; };
+
+function nav(view, extra = {}) {
+  S.stack.push({ view: S.view, pageId: S.pageId, cardId: S.cardId, box: S.box });
+  Object.assign(S, { view }, extra); window.scrollTo(0, 0); render();
+}
+function back() {
+  const p = S.stack.pop() || { view: "home" };
+  Object.assign(S, p); render();
+}
+
+/* ---------- shared pieces ---------- */
+function topbar(title, opts = {}) {
+  const left = opts.home
+    ? '<span class="brand">まちがいカード<small>過去問の復習カード</small></span>'
+    : `<button class="icon-btn" data-act="back" aria-label="戻る">${ICON.back}</button>`;
+  return `<header class="bar"><div class="bar-in">${left}<h1 class="bar-title">${esc(title || "")}</h1>${opts.right || ""}</div></header>`;
+}
+function tabs() {
+  return `<div class="tabs" role="tablist">${SUBJECTS.map(s =>
+    `<button class="tab" role="tab" style="--c:var(--${s.id})" aria-selected="${s.id === S.subject}" data-act="subject" data-sub="${s.id}">${s.name}</button>`).join("")}</div>`;
+}
+function dots(c) {
+  const h = last3(c); const cells = [];
+  for (let i = 0; i < 3; i++) { const v = h[i]; cells.push(`<span class="dot ${v === 1 ? "ok" : v === 0 ? "ng" : ""}"></span>`); }
+  return `<span class="dots" aria-label="直近3回">${cells.join("")}</span>`;
+}
+function miniCard(c) {
+  const p = pageOf(c);
+  return `<button class="mini" data-act="open-card" data-id="${esc(c.id)}">
+    <div class="mini-img"><img data-blob="${esc(c.imgId)}" alt=""></div>
+    <div class="mini-body"><div class="mini-label">${esc(c.label || "問題")}</div>
+    <div class="mini-sub">${esc(p ? p.title : "")}</div>
+    ${(c.tags || []).length ? `<div class="mini-tags">${c.tags.map(t => "#" + esc(t)).join(" ")}</div>` : ""}
+    <div class="dots-wrap">${dots(c)}</div></div></button>`;
+}
+const firstTab = () => S.subject === SUBJECTS[0].id ? " first-tab" : "";
+
+/* ---------- views ---------- */
+function vHome() {
+  const sub = S.subject, rv = cardsOf(sub, "review").length, cl = cardsOf(sub, "cleared").length;
+  const pg = pagesOf(sub).length, all = cardsOf(sub).length;
+  const upload = Store.canUpload();
+  return `${topbar("", { home: true, right: `<button class="icon-btn" data-act="settings" aria-label="設定とバックアップ">${ICON.gear}</button>` })}${tabs()}
+  <main class="sheet${firstTab()}" style="--sub:var(--${sub})">
+    <section class="drawer drawer-main">
+      <div class="drawer-head"><div><div class="drawer-name">復習BOX</div><div class="drawer-sub">まちがえた問題。直近3回すべて正解でクリア</div></div>
+      <div class="count">${rv}<small>枚</small></div></div>
+      <div class="row-btns">
+        <button class="btn btn-primary" data-act="study" data-box="review" ${rv ? "" : "disabled"}>${ICON.play}復習をはじめる</button>
+        <button class="btn" data-act="open-box" data-box="review">カードを見る</button>
+      </div>
+    </section>
+    <section class="drawer">
+      <div class="drawer-head"><div><div class="drawer-name">復習済みBOX</div><div class="drawer-sub">クリアした問題。ときどき解き直しを</div></div>
+      <div class="count">${cl}<small>枚</small></div></div>
+      <div class="row-btns">
+        <button class="btn" data-act="study" data-box="cleared" ${cl ? "" : "disabled"}>${ICON.play}チャレンジ</button>
+        <button class="btn" data-act="open-box" data-box="cleared">カードを見る</button>
+      </div>
+    </section>
+    <section class="drawer">
+      <div class="drawer-head"><div><div class="drawer-name">問題BOX</div><div class="drawer-sub">撮影した過去問 ${pg}ページ</div></div>
+      <div class="count">${all}<small>問</small></div></div>
+      <div class="row-btns"><button class="btn" data-act="open-pages">ページ一覧</button></div>
+    </section>
+  </main>
+  ${Store.mode === "local" ? '<p class="note">データはこの端末に保存されます。別の端末へは設定からバックアップで移せます</p>' : ""}
+  ${!upload ? '<p class="note">このページでは写真を追加できません（編集できる人だけが追加できます）</p>' : ""}
+  <div class="fab-bar" style="--sub:var(--${sub})"><div class="inner"><button class="btn btn-primary" data-act="new-page" ${upload ? "" : "disabled"}>${ICON.cam}過去問を撮影する</button></div></div>`;
+}
+
+function vPages() {
+  const sub = S.subject, list = pagesOf(sub);
+  const rows = list.map(p => {
+    const cs = S.cards.filter(c => c.pageId === p.id), rv = cs.filter(c => c.status === "review").length;
+    return `<button class="page-row" data-act="edit-page" data-id="${esc(p.id)}">
+      <img class="page-thumb" data-blob="${esc(p.imgId)}" alt="">
+      <div class="page-meta"><div class="page-title">${esc(p.title)}</div>
+      <div class="page-sub">${cs.length}問 ${rv ? `<span class="pill">復習 ${rv}</span>` : ""}</div></div></button>`;
+  }).join("");
+  return `${topbar("問題BOX")}${tabs()}
+  <main class="sheet${firstTab()}" style="--sub:var(--${sub})">
+    ${list.length ? rows : `<div class="empty"><b>${subName(sub)}の過去問はまだありません</b>1ページ丸ごと撮影して、問題ごとに範囲を囲みます</div>`}
+  </main>
+  <div class="fab-bar" style="--sub:var(--${sub})"><div class="inner"><button class="btn btn-primary" data-act="new-page" ${Store.canUpload() ? "" : "disabled"}>${ICON.cam}過去問を撮影する</button></div></div>`;
+}
+
+function vBox() {
+  const sub = S.subject, isRv = S.box === "review";
+  const all = cardsOf(sub, S.box);
+  const tagCount = {}; all.forEach(c => (c.tags || []).forEach(t => { tagCount[t] = (tagCount[t] || 0) + 1; }));
+  const tagList = Object.keys(tagCount).sort((a, b) => tagCount[b] - tagCount[a]);
+  const ft = S.tagFilter && tagCount[S.tagFilter] ? S.tagFilter : null;
+  const list = all.filter(c => !ft || (c.tags || []).includes(ft)).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+  const filter = tagList.length ? `<div class="filter"><button class="chip" aria-pressed="${!ft}" data-act="filter-tag" data-tag="">すべて</button>${tagList.map(t =>
+    `<button class="chip" aria-pressed="${ft === t}" data-act="filter-tag" data-tag="${esc(t)}">#${esc(t)} ${tagCount[t]}</button>`).join("")}</div>` : "";
+  return `${topbar(isRv ? "復習BOX" : "復習済みBOX")}${tabs()}
+  <main class="sheet${firstTab()}" style="--sub:var(--${sub})">
+    <div class="section-h"><h2>${ft ? "#" + esc(ft) + " " : ""}${list.length}枚</h2>${list.length ? `<button class="btn btn-primary" data-act="study" data-box="${S.box}" data-tag="${esc(ft || "")}">${ICON.play}${isRv ? "復習をはじめる" : "チャレンジ"}</button>` : ""}</div>
+    ${filter}
+    ${list.length ? `<div class="grid">${list.map(miniCard).join("")}</div>` :
+      `<div class="empty"><b>${isRv ? "復習するカードはありません" : "まだクリアしたカードはありません"}</b>${isRv ? "問題BOXのページを開いて、まちがえた問題に「復習」を付けます" : "復習BOXで直近3回正解するとここに入ります"}</div>`}
+  </main>`;
+}
+
+function vCard() {
+  const c = S.cards.find(x => x.id === S.cardId);
+  if (!c) return `${topbar("カード")}<div class="empty"><b>カードが見つかりません</b></div>`;
+  const p = pageOf(c);
+  const st = c.status === "review" ? "復習BOX" : c.status === "cleared" ? "復習済みBOX" : "問題BOX";
+  return `${topbar(c.label || "カード")}
+  <div style="--sub:var(--${c.subject})">
+  <div style="height:22px"></div>
+  <div class="card-front"><span class="card-label">${esc(subName(c.subject))}</span><img data-blob="${esc(c.imgId)}" alt="問題"></div>
+  <div class="status-line"><span class="pill">${st}</span><span class="dots-wrap" style="margin:0">直近3回 ${dots(c)}</span></div>
+  <div class="card-back">
+    <div class="field"><div class="field-k">タグ</div>${tagBox("card", c.tags)}</div>
+    <div class="field"><div class="field-k">正解${c.answerByAI ? '<span class="badge">AIの答え・確認してください</span>' : ""}</div><input type="text" data-field="answer" value="${esc(c.answer)}" placeholder="答えを書く"></div>
+    <div class="field"><div class="field-k">ポイント</div><textarea data-field="point" rows="2" placeholder="自分用のメモ・気をつけること">${esc(c.point)}</textarea></div>
+    <div class="field"><div class="field-k">解説${c.explainByAI ? '<span class="badge">AIの下書き</span>' : ""}</div><textarea data-field="explain" rows="3" placeholder="解き方・解説">${esc(c.explain)}</textarea>
+      <button class="btn btn-ghost mini-ai" data-act="ai-explain" ${S.aiCard === c.id ? "disabled" : ""}>${ICON.spark}${S.aiCard === c.id ? "AIが書いています…" : c.explain ? "AIで解説を書き直す" : c.answer ? "AIで解説を下書き" : "AIで解いて下書き"}</button></div>
+    <div class="field"><div class="field-k">解答・解説の写真</div>
+      ${c.ansImgId ? `<img class="ansimg" data-blob="${esc(c.ansImgId)}" alt="解答の写真"><button class="btn btn-ghost" data-act="del-ans" style="padding:6px 12px;font-size:13px">写真を外す</button>` :
+        `<button class="btn btn-ghost" data-act="add-ans" ${Store.canUpload() ? "" : "disabled"} style="padding:6px 12px;font-size:13px">${ICON.cam}写真を追加</button>`}
+    </div>
+  </div>
+  <div class="detail-actions">
+    ${c.status === "none" ? `<button class="btn btn-primary" data-act="set-status" data-st="review">復習BOXに入れる</button>` :
+      c.status === "cleared" ? `<button class="btn" data-act="set-status" data-st="review">復習BOXに戻す</button>` :
+      `<button class="btn" data-act="set-status" data-st="none">復習BOXから外す</button>`}
+    ${p ? `<button class="btn" data-act="edit-page" data-id="${esc(p.id)}">元のページを開く</button>` : ""}
+    <button class="btn btn-danger" data-act="del-card">このカードを削除</button>
+  </div></div>`;
+}
+
+function vStudy() {
+  const st = S.study, sub = st.subject;
+  if (st.i >= st.ids.length) {
+    const ok = st.ok, n = st.ids.length;
+    return `${topbar(st.box === "review" ? "復習BOX" : "復習済みBOX")}
+    <div style="--sub:var(--${sub})"><div class="sheet round" style="margin-top:8px"><div class="result">
+      <div class="big">${ok}<span style="font-size:28px;color:var(--ink3)"> / ${n}</span></div>
+      <p>正解しました</p>
+      ${st.cleared ? `<p><b style="color:var(--ok)">${st.cleared}枚クリア！</b> 復習済みBOXに入りました</p>` : ""}
+      ${st.demoted ? `<p>${st.demoted}枚を復習BOXに戻しました</p>` : ""}
+      <div class="row-btns" style="justify-content:center;margin-top:24px">
+        <button class="btn btn-primary" data-act="home">ホームへ</button>
+        ${cardsOf(sub, st.box).filter(c => !st.tag || (c.tags || []).includes(st.tag)).length ? `<button class="btn" data-act="study" data-box="${st.box}" data-tag="${esc(st.tag || "")}">もう一度</button>` : ""}
+      </div></div></div></div>`;
+  }
+  const c = S.cards.find(x => x.id === st.ids[st.i]);
+  if (!c) { st.i++; return vStudy(); }
+  const p = pageOf(c);
+  const back = st.flipped ? `<div class="card-back reveal">
+      <div class="field"><div class="field-k">正解${c.answerByAI ? '<span class="badge">AIの答え</span>' : ""}</div><div class="field-v big ${c.answer ? "" : "muted"}">${c.answer ? esc(c.answer) : "未記入"}</div></div>
+      ${c.point ? `<div class="field"><div class="field-k">ポイント</div><div class="field-v">${esc(c.point)}</div></div>` : ""}
+      ${c.explain ? `<div class="field"><div class="field-k">解説${c.explainByAI ? '<span class="badge">AIの下書き</span>' : ""}</div><div class="field-v">${esc(c.explain)}</div></div>` : ""}
+      ${c.ansImgId ? `<img class="ansimg" data-blob="${esc(c.ansImgId)}" alt="解答の写真">` : ""}
+      <button class="btn btn-ghost" data-act="open-card" data-id="${esc(c.id)}" style="padding:4px 12px;font-size:13px;margin-top:6px">書き込む・直す</button>
+    </div>` : "";
+  return `${topbar(st.box === "review" ? "復習BOX" : "復習済みBOX", { right: `<span style="font-size:14px;color:var(--ink2);padding-right:8px;font-variant-numeric:tabular-nums">${st.i + 1} / ${st.ids.length}</span>` })}
+  <div style="--sub:var(--${sub})">
+  <div class="progress"><i style="width:${(st.i / st.ids.length) * 100}%"></i></div>
+  <div class="study-meta"><span>${esc(c.label || "")}${p ? "・" + esc(p.title) : ""}${(c.tags || []).length ? `<br><span class="study-tags">${c.tags.map(t => "#" + esc(t)).join(" ")}</span>` : ""}</span><span class="dots-wrap" style="margin:0">直近3回 ${dots(c)}</span></div>
+  <div class="card-front"><span class="card-label">${esc(subName(c.subject))}</span><img data-blob="${esc(c.imgId)}" alt="問題"></div>
+  ${back}
+  <div class="fab-bar"><div class="inner">${st.flipped
+    ? `<div class="judge" style="flex:1"><button class="btn btn-ng" data-act="judge" data-ok="0">まちがえた</button><button class="btn btn-ok" data-act="judge" data-ok="1">正解した</button></div>`
+    : `<button class="btn btn-primary" data-act="flip">答えを見る</button>`}</div></div>
+  </div>`;
+}
+
+function vEdit() {
+  const e = S.edit, sub = e.subject;
+  const chips = SUBJECTS.map(s => `<button class="chip" style="--c:var(--${s.id})" aria-pressed="${s.id === sub}" data-act="edit-sub" data-sub="${s.id}">${s.name}</button>`).join("");
+  const titles = [...new Set(S.pages.map(p => p.title))].slice(0, 30).map(t => `<option value="${esc(t)}">`).join("");
+  const meta = `<div class="meta"><span class="label-sm">教科</span><div class="chips">${chips}</div>
+    <label class="label-sm" for="ttl">学校・年度・ページなど</label>
+    <input id="ttl" class="text-in" type="text" data-edit="title" value="${esc(e.title)}" placeholder="例：〇〇中 2025 第1回 p.2" list="ttls"><datalist id="ttls">${titles}</datalist></div>`;
+  if (!e.imgUrl) {
+    return `${topbar(e.pageId ? "ページを編集" : "過去問を追加")}<div style="--sub:var(--${sub})">${meta}
+    <label class="picker" for="fileIn">${ICON.cam}<b>写真を撮る・選ぶ</b>過去問1ページ全体が入るように</label>
+    ${e.loadingImg ? '<p class="note">画像を読み込み中…</p>' : ""}</div>`;
+  }
+  const boxes = e.boxes.map(b => `<div class="box ${b.review ? "rv" : ""} ${e.selected === b.id ? "sel" : ""}" data-id="${esc(b.id)}" data-act="sel-box"
+      style="left:${b.x * 100}%;top:${b.y * 100}%;width:${b.w * 100}%;height:${b.h * 100}%">
+      <span class="tag">${esc(b.label || "")}</span>${e.selected === b.id ? `<span class="handle" data-handle="${esc(b.id)}"></span>` : ""}</div>`).join("");
+  const rows = e.boxes.map(b => `<div class="boxrow ${e.selected === b.id ? "sel" : ""}">
+      <input type="text" data-boxlabel="${esc(b.id)}" value="${esc(b.label)}" aria-label="問題の名前" data-act="sel-row" data-id="${esc(b.id)}">
+      <button class="tog" aria-pressed="${b.review}" data-act="tog-review" data-id="${esc(b.id)}">${b.review ? (b.status === "cleared" ? "復習済" : "復習する") : "復習する"}</button>
+      <button class="icon-btn" data-act="del-box" data-id="${esc(b.id)}" aria-label="範囲を削除" style="width:34px;height:34px">${ICON.x}</button>
+      ${tagBox("box:" + b.id, b.tags)}</div>`).join("");
+  const nRv = e.boxes.filter(b => b.review).length;
+  return `${topbar(e.pageId ? "ページを編集" : "過去問を追加")}<div style="--sub:var(--${sub})">${meta}
+  <div class="toolbar">
+    <button class="btn" data-act="ai" ${e.ai ? "disabled" : ""}>${ICON.spark}${e.ai ? "AIが読み取り中…" : "AIで問題を見つける"}</button>
+    ${e.pageId && e.boxes.some(b => b.cardId) ? `<button class="btn" data-act="ans-open">${ICON.book}解答ページから読み取る</button>` : ""}
+    <button class="btn" data-act="add-mode" aria-pressed="${!!e.adding}">${ICON.plus}${e.adding ? "画像をなぞって囲む" : "範囲を追加"}</button>
+  </div>
+  <p class="hint">${e.ai ? "1ページで30秒ほどかかります。結果はあとから直せます。" : e.adding ? "問題の左上から右下へ指でなぞってください。" : "範囲をタップで選び、ドラッグで移動、右下の丸で大きさを変えられます。まちがえた問題に「復習する」を付けてください。"}</p>
+  <div class="stage ${e.adding ? "adding" : ""}" id="stage"><img src="${esc(e.imgUrl)}" alt="過去問のページ">${boxes}</div>
+  ${e.boxes.length ? `<div class="boxlist">${rows}</div>` : `<p class="note">まだ範囲がありません</p>`}
+  ${e.pageId ? `<div class="detail-actions"><button class="btn btn-danger" data-act="del-page">このページを削除</button></div>` : ""}
+  <div class="fab-bar"><div class="inner"><button class="btn btn-primary" data-act="save-page" ${e.saving || !e.boxes.length ? "disabled" : ""}>${e.saving ? `保存中… ${e.progress || ""}` : `保存する（${e.boxes.length}問・復習${nRv}）`}</button></div></div>
+  </div>`;
+}
+
+function vAnswers() {
+  const A = S.ans, p = S.pages.find(x => x.id === A.pageId);
+  const sub = p ? p.subject : S.subject;
+  const head = topbar("解答ページから読み取る");
+  if (A.step === "busy") {
+    return `${head}<div style="--sub:var(--${sub})"><div class="sheet round" style="margin-top:8px"><div class="busy"><div class="spin"></div><b>${esc(A.msg || "読み取り中…")}</b>${esc(A.sub || "")}</div></div></div>`;
+  }
+  if (A.step === "pick") {
+    const thumbs = A.imgs.map((im, i) => `<div class="th"><img src="${esc(im.url)}" alt="解答ページ${i + 1}"><button data-act="ans-rmimg" data-i="${i}" aria-label="外す">×</button></div>`).join("");
+    const n = S.cards.filter(c => c.pageId === A.pageId).length;
+    return `${head}<div style="--sub:var(--${sub})">
+    <p class="hint" style="padding-top:4px">「${esc(p ? p.title : "")}」の${n}問に正解を入れます。解答・解説のページを撮影してください（4枚まで）。</p>
+    ${A.imgs.length ? `<div class="thumbs">${thumbs}</div>` : ""}
+    ${A.imgs.length < 4 ? `<label class="picker" for="ansPageIn" style="padding:28px 20px">${ICON.cam}<b>${A.imgs.length ? "もう1枚追加" : "解答ページを撮る・選ぶ"}</b>解答と解説が写るように</label>` : ""}
+    <div class="sheet round" style="margin-top:14px"><section class="drawer">
+      <div class="drawer-head"><div><div class="drawer-name" style="font-size:15px">解説がない問題はAIが下書きする</div>
+      <div class="drawer-sub">正解をもとに、小学生向けの解き方を書きます。下書きなので内容を確かめてください。</div></div>
+      <button class="tog" style="margin-left:auto;align-self:center" aria-pressed="${A.gen}" data-act="ans-gen">${A.gen ? "する" : "しない"}</button></div>
+    </section></div>
+    <div class="fab-bar"><div class="inner"><button class="btn btn-primary" data-act="ans-run" ${A.imgs.length ? "" : "disabled"}>${ICON.spark}読み取る</button></div></div></div>`;
+  }
+  // review
+  const items = A.items.map((it, i) => {
+    const c = S.cards.find(x => x.id === it.cardId); if (!c) return "";
+    return `<div class="ans-item ${it.use ? "" : "off"}">
+      <div class="ans-head"><img class="ans-thumb" data-blob="${esc(c.imgId)}" alt=""><div class="grow"><div style="font-weight:700">${esc(c.label || "問題")}</div>
+        ${c.answer ? `<div class="drawer-sub">今の正解：${esc(c.answer)}</div>` : ""}</div>
+        <button class="tog" aria-pressed="${it.use}" data-act="ans-use" data-i="${i}">${it.use ? "反映する" : "反映しない"}</button></div>
+      <span class="label-sm">正解${it.answer ? '<span class="badge book">解答冊子から</span>' : ""}</span>
+      <input class="text-in" type="text" data-ans="${i}" data-k="answer" value="${esc(it.answer)}" placeholder="見つかりませんでした。手で入力できます">
+      <span class="label-sm">解説${it.explain ? (it.explainAI ? '<span class="badge">AIの下書き・確認してください</span>' : '<span class="badge book">解答冊子から</span>') : ""}</span>
+      <textarea class="text-in" data-ans="${i}" data-k="explain" rows="4" placeholder="解説なし">${esc(it.explain)}</textarea>
+      ${it.check ? `<p class="warn">AIからの確認：${esc(it.check)}</p>` : ""}
+    </div>`;
+  }).join("");
+  const n = A.items.filter(it => it.use).length;
+  return `${head}<div style="--sub:var(--${sub})">
+  <p class="hint" style="padding-top:4px">内容を確かめて、直すところがあれば書き換えてから反映してください。</p>
+  <div class="sheet round">${items || '<div class="empty"><b>正解を見つけられませんでした</b>解答ページが写っているか確かめてください</div>'}</div>
+  <div class="fab-bar"><div class="inner"><button class="btn btn-primary" data-act="ans-apply" ${n ? "" : "disabled"}>選んだ${n}問に反映する</button></div></div></div>`;
+}
+
+function vSettings() {
+  const key = getKey();
+  return `${topbar("設定とバックアップ")}
+  <div style="--sub:var(--${S.subject})">
+  <div class="sheet round" style="margin-top:8px">
+    <section class="drawer">
+      <div class="drawer-name">AIで問題を見つける</div>
+      <div class="drawer-sub" style="margin-bottom:12px">AnthropicのAPIキーを入れると、撮影したページから問題の範囲を自動で囲めます。キーはこの端末にだけ保存されます。お子さんの端末には入れないことをおすすめします。</div>
+      <input class="text-in" type="password" id="keyIn" autocomplete="off" placeholder="sk-ant-…" value="${esc(key)}">
+      <div class="row-btns"><button class="btn btn-primary" data-act="save-key">保存する</button>${key ? '<button class="btn btn-ghost" data-act="clear-key">キーを消す</button>' : ""}</div>
+    </section>
+    <section class="drawer">
+      <div class="drawer-name">バックアップ</div>
+      <div class="drawer-sub" style="margin-bottom:4px">写真・カード・正解の記録をまとめて1つのファイルにします。保護者の端末で作ったカードを、お子さんの端末へ移すときにも使えます。</div>
+      <div class="drawer-sub">読み込むと、同じカードは新しく更新されたほうが残り、正解の記録は最後に解いたほうが残ります。</div>
+      <div class="row-btns">
+        <button class="btn btn-primary" data-act="export">書き出す</button>
+        <button class="btn" data-act="import">読み込む</button>
+      </div>
+      <p class="drawer-sub" id="usage" style="margin-top:12px"></p>
+    </section>
+  </div></div>`;
+}
+
+function render() {
+  if (S.view === "loading") return;
+  if (S.view === "error") { $app.innerHTML = `<div class="loading"><div style="text-align:center">データを読み込めませんでした。<br>ページを開き直してください。</div></div>`; return; }
+  document.documentElement.style.setProperty("--sub", `var(--${S.subject})`);
+  const v = { home: vHome, pages: vPages, box: vBox, card: vCard, study: vStudy, edit: vEdit, settings: vSettings, answers: vAnswers }[S.view] || vHome;
+  $app.innerHTML = v();
+  document.querySelectorAll("textarea").forEach(t => { t.style.height = "auto"; t.style.height = t.scrollHeight + "px"; });
+  hydrateImages();
+  if (S.view === "settings") showUsage();
+}
+async function showUsage() {
+  const el = document.getElementById("usage"); if (!el) return;
+  const n = S.cards.length, pg = S.pages.length;
+  let mb = "";
+  try { const est = await navigator.storage.estimate(); if (est && est.usage) mb = `・約${(est.usage / 1048576).toFixed(1)}MB使用`; } catch (e) {}
+  el.textContent = `${pg}ページ・${n}問${mb}`;
+}
+
+/* ---------- editor ---------- */
+function openEditor(pageId) {
+  const p = pageId ? S.pages.find(x => x.id === pageId) : null;
+  S.edit = {
+    pageId: p ? p.id : null, subject: p ? p.subject : S.subject, title: p ? p.title : "",
+    imgUrl: null, newBlob: null, boxes: [], selected: null, adding: false, ai: false, saving: false, dirty: false,
+  };
+  if (p) {
+    S.edit.boxes = S.cards.filter(c => c.pageId === p.id).sort((a, b) => (a.box.y - b.box.y) || (a.box.x - b.box.x))
+      .map(c => ({ id: c.id, cardId: c.id, ...c.box, label: c.label, tags: c.tags || [], review: c.status !== "none", status: c.status, changed: false }));
+    Store.url(p.imgId).then(u => { if (S.edit && S.edit.pageId === p.id) { S.edit.imgUrl = u; render(); } });
+  }
+  nav("edit");
+}
+function nextLabel() { return `問${S.edit.boxes.length + 1}`; }
+
+document.getElementById("fileIn").addEventListener("change", async ev => {
+  const f = ev.target.files && ev.target.files[0]; ev.target.value = "";
+  if (!f || !S.edit) return;
+  S.edit.loadingImg = true; render();
+  try {
+    const bmp = await loadBitmap(f); const r = await resize(bmp, 2200, 0.85);
+    S.edit.newBlob = r.blob; S.edit.imgUrl = URL.createObjectURL(r.blob); S.edit.dirty = true;
+  } catch (e) { toast("画像を読み込めませんでした。JPEGかPNGで試してください"); }
+  S.edit.loadingImg = false; render();
+});
+
+let drag = null;
+function stagePoint(ev, stage) {
+  const r = stage.getBoundingClientRect();
+  return { x: clamp((ev.clientX - r.left) / r.width, 0, 1), y: clamp((ev.clientY - r.top) / r.height, 0, 1) };
+}
+function placeEl(el, b) { el.style.left = b.x * 100 + "%"; el.style.top = b.y * 100 + "%"; el.style.width = b.w * 100 + "%"; el.style.height = b.h * 100 + "%"; }
+$app.addEventListener("pointerdown", ev => {
+  const stage = ev.target.closest("#stage"); if (!stage || !S.edit) return;
+  const e = S.edit, p = stagePoint(ev, stage);
+  const h = ev.target.closest("[data-handle]"), bx = ev.target.closest(".box");
+  if (h) { const b = e.boxes.find(x => x.id === h.dataset.handle); drag = { type: "resize", b, p0: p, o: { ...b }, el: h.parentElement }; }
+  else if (bx && bx.dataset.id === e.selected && !e.adding) { const b = e.boxes.find(x => x.id === bx.dataset.id); drag = { type: "move", b, p0: p, o: { ...b }, el: bx }; }
+  else if (e.adding) {
+    const el = document.createElement("div"); el.className = "box rv sel"; stage.appendChild(el);
+    drag = { type: "draw", p0: p, el, b: { id: uid(), x: p.x, y: p.y, w: 0, h: 0, label: nextLabel(), review: true, status: "none", changed: true } };
+    placeEl(el, drag.b);
+  } else return;
+  ev.preventDefault();
+  try { stage.setPointerCapture(ev.pointerId); } catch (x) {}
+  drag.stage = stage; drag.moved = false;
+});
+$app.addEventListener("pointermove", ev => {
+  if (!drag) return; ev.preventDefault();
+  const p = stagePoint(ev, drag.stage), dx = p.x - drag.p0.x, dy = p.y - drag.p0.y, b = drag.b, o = drag.o;
+  if (Math.abs(dx) + Math.abs(dy) > 0.004) drag.moved = true;
+  if (drag.type === "draw") { b.x = Math.min(p.x, drag.p0.x); b.y = Math.min(p.y, drag.p0.y); b.w = Math.abs(dx); b.h = Math.abs(dy); }
+  else if (drag.type === "move") { b.x = clamp(o.x + dx, 0, 1 - o.w); b.y = clamp(o.y + dy, 0, 1 - o.h); }
+  else { b.w = clamp(o.w + dx, 0.03, 1 - o.x); b.h = clamp(o.h + dy, 0.02, 1 - o.y); }
+  placeEl(drag.el, b);
+});
+function endDrag() {
+  if (!drag) return; const d = drag; drag = null; const e = S.edit;
+  if (d.type === "draw") {
+    if (d.b.w > 0.03 && d.b.h > 0.02) { e.boxes.push(d.b); e.selected = d.b.id; e.adding = false; e.dirty = true; }
+    else d.el.remove();
+  } else if (d.moved) { d.b.changed = true; e.dirty = true; }
+  render();
+}
+$app.addEventListener("pointerup", endDrag);
+$app.addEventListener("pointercancel", endDrag);
+
+async function runAI() {
+  const e = S.edit; if (e.ai) return;
+  const key = getKey();
+  if (!key) { toast("設定でAPIキーを入れると使えます。手で「範囲を追加」もできます"); return; }
+  e.ai = true; render();
+  try {
+    const src = e.newBlob || await Store.getBlob(S.pages.find(p => p.id === e.pageId).imgId);
+    const small = await resize(await loadBitmap(src), 1600, 0.85);
+    const prompt = `これは中学受験の過去問（教科：${subName(e.subject)}）の1ページを撮影した画像です。
+ページにある設問を、小問ごと（例：大問1の(1)、(2)…）に見つけて、それぞれの範囲を教えてください。
+- 範囲には、その小問を解くのに必要な問題文・選択肢・図・表を含めてください。
+- 大問の前文や図が短く、その小問に必要なら含めてください。国語の読解の本文のように長い文章は含めず、設問の部分だけにしてください。
+- 解答欄だけの部分、ページ番号、余白は含めないでください。
+- 座標は画像の左上を(0,0)、右下を(1000,1000)とした整数で、[左, 上, 右, 下] の順にしてください。
+- label は「大問1 (1)」のように短く。
+次の形のJSONだけを返してください：
+{"questions":[{"label":"大問1 (1)","box":[60,120,940,300]}]}`;
+    const b64 = (await blobToDataURL(small.blob)).split(",")[1];
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+      body: JSON.stringify({ model: MODEL, max_tokens: 4000, messages: [{ role: "user", content: [
+        { type: "image", source: { type: "base64", media_type: "image/jpeg", data: b64 } },
+        { type: "text", text: prompt },
+      ] }] }),
+    });
+    if (!res.ok) { const er = new Error("api"); er.status = res.status; throw er; }
+    const j = await res.json();
+    const text = (j.content || []).filter(c => c.type === "text").map(c => c.text).join("");
+    const a0 = text.indexOf("{"), a1 = text.lastIndexOf("}");
+    const data = a0 >= 0 && a1 > a0 ? JSON.parse(text.slice(a0, a1 + 1)) : null;
+    const qs = Array.isArray(data && data.questions) ? data.questions : [];
+    let added = 0;
+    for (const q of qs) {
+      const bb = q && q.box; if (!Array.isArray(bb) || bb.length !== 4 || bb.some(v => typeof v !== "number")) continue;
+      let [x0, y0, x1, y1] = bb.map(v => clamp(v / 1000, 0, 1));
+      if (x1 < x0) [x0, x1] = [x1, x0]; if (y1 < y0) [y0, y1] = [y1, y0];
+      x0 = clamp(x0 - 0.01, 0, 1); y0 = clamp(y0 - 0.008, 0, 1); x1 = clamp(x1 + 0.01, 0, 1); y1 = clamp(y1 + 0.008, 0, 1);
+      if (x1 - x0 < 0.03 || y1 - y0 < 0.015) continue;
+      e.boxes.push({ id: uid(), x: x0, y: y0, w: x1 - x0, h: y1 - y0, label: String(q.label || "").slice(0, 30) || nextLabel(), review: false, status: "none", changed: true });
+      added++;
+    }
+    e.dirty = e.dirty || added > 0;
+    toast(added ? `${added}問見つけました。まちがえた問題に「復習する」を付けてください` : "問題を見つけられませんでした。「範囲を追加」で囲んでください");
+  } catch (err) {
+    const st = err && err.status;
+    toast(st === 401 || st === 403 ? "APIキーが正しくないようです。設定で確かめてください"
+      : st === 429 || st === 529 ? "混み合っています。少し待ってからもう一度どうぞ"
+      : st === 400 && /credit|billing/i.test(String(err.message)) ? "APIの残高を確かめてください"
+      : !navigator.onLine ? "オフラインです。電波のある場所でどうぞ"
+      : "読み取れませんでした。「範囲を追加」で囲んでください");
+  }
+  e.ai = false; if (S.view === "edit") render();
+}
+
+async function savePage() {
+  const e = S.edit; if (e.saving) return;
+  e.saving = true; e.progress = ""; render();
+  const setProg = t => { e.progress = t; const b = document.querySelector('[data-act="save-page"]'); if (b) b.textContent = "保存中… " + t; };
+  try {
+    let page = e.pageId ? S.pages.find(p => p.id === e.pageId) : null, bmp = null;
+    if (!page) {
+      setProg("ページ");
+      const imgId = await Store.putBlob(e.newBlob);
+      bmp = await loadBitmap(e.newBlob);
+      page = { id: uid(), subject: e.subject, title: e.title.trim() || "無題のページ", imgId, w: bmp.width, h: bmp.height, createdAt: Date.now() };
+    } else {
+      page = { ...page, subject: e.subject, title: e.title.trim() || page.title };
+    }
+    await Store.put("pages", page); upsert(S.pages, page);
+    const keep = new Set(e.boxes.filter(b => b.cardId).map(b => b.cardId));
+    for (const c of S.cards.filter(c => c.pageId === page.id && !keep.has(c.id))) {
+      await Store.del("cards", c.id); Store.delBlob(c.imgId); if (c.ansImgId) Store.delBlob(c.ansImgId);
+    }
+    S.cards = S.cards.filter(c => c.pageId !== page.id || keep.has(c.id));
+    let i = 0;
+    for (const b of e.boxes) {
+      setProg(`${++i}/${e.boxes.length}`);
+      const c = b.cardId ? S.cards.find(x => x.id === b.cardId) : null;
+      let imgId = c && c.imgId;
+      if (!c || b.changed) {
+        if (!bmp) bmp = await loadBitmap(await Store.getBlob(page.imgId));
+        imgId = await Store.putBlob(await cropBlob(bmp, b));
+        if (c && c.imgId) Store.delBlob(c.imgId);
+      }
+      const prev = c ? c.status : "none";
+      let status = prev, history = (c && c.history) || [];
+      if (b.review && prev === "none") { status = "review"; history = []; }
+      if (!b.review) status = "none";
+      const card = { answer: "", point: "", explain: "", createdAt: Date.now(), ...(c || {}),
+        id: c ? c.id : uid(), pageId: page.id, subject: page.subject, label: b.label || "", tags: b.tags || [], box: { x: b.x, y: b.y, w: b.w, h: b.h },
+        imgId, status, history, updatedAt: Date.now() };
+      await Store.put("cards", card); upsert(S.cards, card);
+    }
+    const nRv = e.boxes.filter(b => b.review).length;
+    S.subject = page.subject; S.edit = null;
+    toast(nRv ? `保存しました。復習BOXのカードに答えを書き込めます` : "保存しました");
+    back();
+  } catch (err) {
+    e.saving = false; render(); toast("保存できませんでした。通信を確認してもう一度どうぞ");
+  }
+}
+
+async function deletePage() {
+  const e = S.edit, p = S.pages.find(x => x.id === e.pageId); if (!p) return;
+  if (!confirm("このページと、そこから作ったカードをすべて削除します。")) return;
+  try {
+    for (const c of S.cards.filter(c => c.pageId === p.id)) { await Store.del("cards", c.id); Store.delBlob(c.imgId); if (c.ansImgId) Store.delBlob(c.ansImgId); }
+    await Store.del("pages", p.id); Store.delBlob(p.imgId);
+    S.cards = S.cards.filter(c => c.pageId !== p.id); S.pages = S.pages.filter(x => x.id !== p.id);
+    S.edit = null; toast("ページを削除しました"); back();
+  } catch (err) { toast("削除できませんでした"); }
+}
+
+/* ---------- study ---------- */
+function startStudy(box, again, tag) {
+  const sub = again && S.study ? S.study.subject : S.subject;
+  const list = cardsOf(sub, box).filter(c => !tag || (c.tags || []).includes(tag));
+  if (!list.length) return;
+  S.study = { box, tag: tag || null, subject: sub, ids: shuffle(list.map(c => c.id)), i: 0, flipped: false, ok: 0, cleared: 0, demoted: 0 };
+  if (again) { window.scrollTo(0, 0); render(); } else nav("study");
+}
+async function judge(ok) {
+  const st = S.study, c = S.cards.find(x => x.id === st.ids[st.i]); if (!c) return;
+  const card = { ...c, history: [...(c.history || []), ok ? 1 : 0].slice(-10), lastAt: Date.now(), updatedAt: Date.now() };
+  const l3 = card.history.slice(-3);
+  if (card.status === "review" && l3.length === 3 && l3.every(v => v === 1)) { card.status = "cleared"; st.cleared++; toast("クリア！復習済みBOXに入りました"); }
+  else if (card.status === "cleared" && !ok) { card.status = "review"; st.demoted++; toast("復習BOXに戻しました"); }
+  if (ok) st.ok++;
+  upsert(S.cards, card);
+  Store.put("cards", card).catch(() => toast("記録を保存できませんでした"));
+  st.i++; st.flipped = false; window.scrollTo(0, 0); render();
+}
+
+/* ---------- card detail ---------- */
+async function saveCard(c, patch) {
+  const card = { ...c, ...patch, updatedAt: Date.now() }; upsert(S.cards, card);
+  try { await Store.put("cards", card); } catch (e) { toast("保存できませんでした"); }
+  return card;
+}
+document.getElementById("ansIn").addEventListener("change", async ev => {
+  const f = ev.target.files && ev.target.files[0]; ev.target.value = "";
+  const c = S.cards.find(x => x.id === S.cardId); if (!f || !c) return;
+  try {
+    toast("写真を保存中…");
+    const r = await resize(await loadBitmap(f), 1600, 0.85);
+    const id = await Store.putBlob(r.blob);
+    if (c.ansImgId) Store.delBlob(c.ansImgId);
+    await saveCard(c, { ansImgId: id }); render(); toast("写真を追加しました");
+  } catch (e) { toast("写真を追加できませんでした"); }
+});
+
+/* ---------- answers from booklet ---------- */
+function openAnswers() {
+  const e = S.edit;
+  if (e.dirty) { toast("先に「保存する」を押してから読み取ってください"); return; }
+  if (!getKey()) { toast("設定でAPIキーを入れると使えます"); return; }
+  S.ans = { pageId: e.pageId, step: "pick", imgs: [], gen: true, items: [] };
+  nav("answers");
+}
+document.getElementById("ansPageIn").addEventListener("change", async ev => {
+  const files = [...(ev.target.files || [])]; ev.target.value = "";
+  if (!S.ans) return;
+  for (const f of files) {
+    if (S.ans.imgs.length >= 4) break;
+    try { const r = await resize(await loadBitmap(f), 2000, 0.85); S.ans.imgs.push({ blob: r.blob, url: URL.createObjectURL(r.blob) }); }
+    catch (e) { toast("画像を読み込めませんでした"); }
+  }
+  render();
+});
+async function runAnswers() {
+  const A = S.ans, page = S.pages.find(p => p.id === A.pageId); if (!page) return;
+  const cards = S.cards.filter(c => c.pageId === page.id).sort((a, b) => (a.box.y - b.box.y) || (a.box.x - b.box.x));
+  A.step = "busy"; A.msg = "解答ページを読み取り中…"; A.sub = "1分ほどかかります"; render();
+  try {
+    const parts = [await imgPart(await Store.getBlob(page.imgId))];
+    for (const im of A.imgs) parts.push(await imgPart(im.blob));
+    const list = cards.map((c, i) => `${i + 1}. ${c.label || "（名前なし）"}`).join("\n");
+    parts.push({ type: "text", text: `1枚目は中学受験の過去問（教科：${subName(page.subject)}、「${page.title}」）の問題ページです。2枚目以降は、その過去問の解答・解説ページです。
+問題ページから作ったカードの一覧（ページの上から順）：
+${list}
+解答・解説ページから、各カードの正解を探してください。番号 no は一覧の番号です。1枚目の問題ページを見て、どの問題がどのカードかを判断してください。
+- answer：解答ページに書かれた正解をそのまま短く（記号問題は記号、数値は単位も、記述問題は解答例）。
+- explanation：解答・解説ページにその問題の解説が書かれていれば、その要点を300字以内で。書かれていなければ空文字。自分で解説を作らないでください。
+- 正解が見つからない問題は answer を空文字にしてください。推測で埋めないでください。
+次の形のJSONだけを返してください：
+{"answers":[{"no":1,"answer":"","explanation":""}]}` });
+    const data = parseJSON(await callClaude(parts, { model: MODEL, maxTokens: 6000 }));
+    const got = {};
+    (Array.isArray(data.answers) ? data.answers : []).forEach(a => { const n = Number(a && a.no); if (n >= 1 && n <= cards.length) got[n - 1] = a; });
+    A.items = cards.map((c, i) => {
+      const a = got[i] || {};
+      const answer = String(a.answer || "").trim(), explain = String(a.explanation || "").trim();
+      return { cardId: c.id, answer, explain, explainAI: false, check: "", use: !!(answer || explain) && !(c.answer && c.explain) };
+    });
+    if (A.gen) {
+      const todo = A.items.filter(it => it.answer && !it.explain);
+      let k = 0;
+      for (const it of todo) {
+        A.msg = "AIが解説を下書き中…"; A.sub = `${++k} / ${todo.length}`; render();
+        const c = S.cards.find(x => x.id === it.cardId);
+        try { const r = await aiExplain({ ...c, answer: it.answer }); it.explain = r.explanation; it.explainAI = !!r.explanation; it.check = r.check; it.use = true; }
+        catch (err) { if (err.status === 401 || err.status === 403) throw err; }
+      }
+    }
+    A.step = "review"; render();
+  } catch (err) {
+    A.step = "pick"; render(); toast(aiErrMsg(err));
+  }
+}
+async function applyAnswers() {
+  const A = S.ans; let n = 0;
+  for (const it of A.items) {
+    if (!it.use) continue;
+    const c = S.cards.find(x => x.id === it.cardId); if (!c) continue;
+    const patch = {};
+    if (it.answer.trim()) { patch.answer = it.answer.trim(); patch.answerByAI = false; }
+    if (it.explain.trim()) { patch.explain = it.explain.trim(); patch.explainByAI = !!it.explainAI; }
+    if (Object.keys(patch).length) { await saveCard(c, patch); n++; }
+  }
+  A.imgs.forEach(im => URL.revokeObjectURL(im.url));
+  S.ans = null; toast(`${n}問に反映しました`); back();
+}
+async function explainCard() {
+  const c = S.cards.find(x => x.id === S.cardId); if (!c || S.aiCard) return;
+  if (!getKey()) { toast("設定でAPIキーを入れると使えます"); return; }
+  if (!c.answer && !confirm("正解が未記入なので、AIが問題を解いて答えと解説を下書きします。まちがえることがあるので、必ず確かめてください。")) return;
+  if (c.explain && !confirm("今の解説をAIの下書きで置き換えます。")) return;
+  S.aiCard = c.id; render();
+  try {
+    const r = await aiExplain(c);
+    const patch = {};
+    if (r.answer) { patch.answer = r.answer; patch.answerByAI = true; }
+    if (r.explanation) { patch.explain = r.explanation + (r.check ? `\n（AIからの確認：${r.check}）` : ""); patch.explainByAI = true; }
+    await saveCard(S.cards.find(x => x.id === c.id), patch);
+    toast(r.lowConfidence ? "下書きしました。AIの自信が低いので特によく確かめてください" : r.check ? "下書きしました。AIからの確認があります" : "下書きしました。内容を確かめてください");
+  } catch (err) { toast(aiErrMsg(err)); }
+  S.aiCard = null; if (S.view === "card") render();
+}
+
+/* ---------- backup ---------- */
+async function exportBackup() {
+  toast("書き出し中…");
+  const ids = new Set();
+  S.pages.forEach(p => ids.add(p.imgId));
+  S.cards.forEach(c => { ids.add(c.imgId); if (c.ansImgId) ids.add(c.ansImgId); });
+  const blobs = {};
+  for (const id of ids) { if (!id) continue; try { blobs[id] = await blobToDataURL(await Store.getBlob(id)); } catch (e) {} }
+  const d = new Date(), ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
+  const json = JSON.stringify({ app: "machigai-card", version: 1, exportedAt: Date.now(), pages: S.pages, cards: S.cards, blobs });
+  const file = new File([json], `machigai-card-${ymd}.json`, { type: "application/json" });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: "まちがいカード バックアップ" }); return; }
+    catch (e) { if (e && e.name === "AbortError") return; }
+  }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(file); a.download = file.name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast("書き出しました");
+}
+document.getElementById("bkIn").addEventListener("change", async ev => {
+  const f = ev.target.files && ev.target.files[0]; ev.target.value = "";
+  if (!f) return;
+  try {
+    const data = JSON.parse(await f.text());
+    if (!data || data.app !== "machigai-card" || !Array.isArray(data.pages) || !Array.isArray(data.cards)) { toast("まちがいカードのバックアップではないようです"); return; }
+    data.pages = data.pages.map(cleanPage).filter(Boolean);
+    data.cards = data.cards.map(cleanCard).filter(Boolean);
+    if (!confirm(`${data.pages.length}ページ・${data.cards.length}問を読み込みます。`)) return;
+    toast("読み込み中…");
+    const have = new Set();
+    for (const p of S.pages) have.add(p.imgId);
+    for (const c of S.cards) { have.add(c.imgId); if (c.ansImgId) have.add(c.ansImgId); }
+    const blobs = data.blobs && typeof data.blobs === "object" ? data.blobs : {};
+    for (const [id, url] of Object.entries(blobs)) {
+      if (!okId(id) || typeof url !== "string" || !/^data:image\/(jpeg|png|webp|gif);base64,/.test(url)) continue;
+      if (have.has(id)) continue;
+      const blob = await dataURLToBlob(url); await Store._tx("blobs", "readwrite", s => s.put({ id, blob }));
+    }
+    for (const p of data.pages) {
+      const cur = S.pages.find(x => x.id === p.id);
+      if (!cur || (p.createdAt || 0) >= (cur.createdAt || 0)) { await Store.put("pages", p); upsert(S.pages, p); }
+    }
+    for (const c of data.cards) {
+      const cur = S.cards.find(x => x.id === c.id);
+      let m = c;
+      if (cur) {
+        m = (c.updatedAt || 0) >= (cur.updatedAt || 0) ? { ...c } : { ...cur };
+        const prog = (c.lastAt || 0) >= (cur.lastAt || 0) ? c : cur;
+        m.history = prog.history || []; m.lastAt = prog.lastAt || 0;
+        if (m.status !== "none") m.status = prog.status === "none" ? m.status : prog.status;
+      }
+      await Store.put("cards", m); upsert(S.cards, m);
+    }
+    toast("読み込みました"); render();
+  } catch (e) { toast("読み込めませんでした。ファイルを確かめてください"); }
+});
+
+/* ---------- events ---------- */
+$app.addEventListener("click", async ev => {
+  const t = ev.target.closest("[data-act]"); if (!t) {
+    if (S.view === "edit" && S.edit && S.edit.selected && ev.target.closest("#stage")) { S.edit.selected = null; render(); }
+    return;
+  }
+  const a = t.dataset.act, e = S.edit;
+  switch (a) {
+    case "back":
+      if (S.view === "edit" && e && e.dirty && !e.saving && !confirm("保存していない変更があります。戻りますか？")) return;
+      if (S.view === "edit") S.edit = null;
+      back(); break;
+    case "home": S.stack = []; S.view = "home"; render(); break;
+    case "subject": S.subject = t.dataset.sub; S.tagFilter = null; render(); break;
+    case "open-box": S.tagFilter = null; nav("box", { box: t.dataset.box }); break;
+    case "open-pages": nav("pages"); break;
+    case "open-card": nav("card", { cardId: t.dataset.id }); break;
+    case "study": startStudy(t.dataset.box, S.view === "study", t.dataset.tag || null); break;
+    case "filter-tag": S.tagFilter = t.dataset.tag || null; render(); break;
+    case "tag-add": addTags(t.dataset.ctx, t.dataset.tag, true); break;
+    case "tag-rm": { const c = tagCtx(t.dataset.ctx); if (c) { await c.set(c.tags.filter(x => x !== t.dataset.tag)); render(); } break; }
+    case "flip": S.study.flipped = true; render(); break;
+    case "judge": judge(t.dataset.ok === "1"); break;
+    case "new-page": openEditor(null); break;
+    case "edit-page": openEditor(t.dataset.id); break;
+    case "edit-sub": e.subject = t.dataset.sub; e.dirty = true; render(); break;
+    case "add-mode": e.adding = !e.adding; e.selected = null; render(); break;
+    case "ai": runAI(); break;
+    case "ans-open": openAnswers(); break;
+    case "ans-rmimg": { const im = S.ans.imgs.splice(Number(t.dataset.i), 1)[0]; if (im) URL.revokeObjectURL(im.url); render(); break; }
+    case "ans-gen": S.ans.gen = !S.ans.gen; render(); break;
+    case "ans-run": runAnswers(); break;
+    case "ans-use": { const it = S.ans.items[Number(t.dataset.i)]; it.use = !it.use; render(); break; }
+    case "ans-apply": applyAnswers(); break;
+    case "ai-explain": explainCard(); break;
+    case "sel-box": if (drag) return; if (e.adding) return; e.selected = t.dataset.id; render(); break;
+    case "sel-row": if (e.selected !== t.dataset.id) { e.selected = t.dataset.id; const el = document.querySelector(`.box[data-id="${t.dataset.id}"]`); document.querySelectorAll(".box.sel,.boxrow.sel").forEach(x => x.classList.remove("sel")); if (el) { el.classList.add("sel"); } t.closest(".boxrow").classList.add("sel"); } break;
+    case "tog-review": { const b = e.boxes.find(x => x.id === t.dataset.id); b.review = !b.review; e.dirty = true; render(); break; }
+    case "del-box": e.boxes = e.boxes.filter(x => x.id !== t.dataset.id); if (e.selected === t.dataset.id) e.selected = null; e.dirty = true; render(); break;
+    case "save-page": savePage(); break;
+    case "settings": nav("settings"); break;
+    case "save-key": { const v = document.getElementById("keyIn").value.trim(); setKey(v); S.canImages = !!v; toast(v ? "保存しました" : "キーを消しました"); render(); break; }
+    case "clear-key": setKey(""); S.canImages = false; toast("キーを消しました"); render(); break;
+    case "export": exportBackup(); break;
+    case "import": document.getElementById("bkIn").click(); break;
+    case "del-page": deletePage(); break;
+    case "set-status": {
+      const c = S.cards.find(x => x.id === S.cardId); const st = t.dataset.st;
+      await saveCard(c, { status: st, history: st === "review" && c.status === "none" ? [] : c.history || [] });
+      toast(st === "review" ? "復習BOXに入れました" : "復習BOXから外しました"); render(); break;
+    }
+    case "add-ans": document.getElementById("ansIn").click(); break;
+    case "del-ans": { const c = S.cards.find(x => x.id === S.cardId); Store.delBlob(c.ansImgId); await saveCard(c, { ansImgId: null }); render(); break; }
+    case "del-card": {
+      const c = S.cards.find(x => x.id === S.cardId);
+      if (!confirm("このカードを削除します。元のページの範囲も消えます。")) return;
+      try { await Store.del("cards", c.id); Store.delBlob(c.imgId); if (c.ansImgId) Store.delBlob(c.ansImgId); S.cards = S.cards.filter(x => x.id !== c.id); toast("削除しました"); back(); }
+      catch (err) { toast("削除できませんでした"); }
+      break;
+    }
+  }
+});
+$app.addEventListener("input", ev => {
+  const t = ev.target;
+  if (t.dataset.edit === "title" && S.edit) { S.edit.title = t.value; S.edit.dirty = true; }
+  if (t.dataset.boxlabel && S.edit) {
+    const b = S.edit.boxes.find(x => x.id === t.dataset.boxlabel); if (b) { b.label = t.value; S.edit.dirty = true; }
+    const tag = document.querySelector(`.box[data-id="${t.dataset.boxlabel}"] .tag`); if (tag) tag.textContent = t.value;
+  }
+  if (t.dataset.ans && S.ans) { const it = S.ans.items[Number(t.dataset.ans)]; if (it) { it[t.dataset.k] = t.value; if (t.dataset.k === "explain") it.explainAI = it.explainAI && !!t.value; } }
+  if (t.dataset.tagin) {
+    if (/[、,，]/.test(t.value) && !ev.isComposing) { addTags(t.dataset.tagin, t.value, true); return; }
+    fillSugg(t);
+  }
+  if (t.tagName === "TEXTAREA") { t.style.height = "auto"; t.style.height = t.scrollHeight + "px"; }
+});
+$app.addEventListener("focusin", ev => { if (ev.target.dataset && ev.target.dataset.tagin) fillSugg(ev.target); });
+$app.addEventListener("focusout", ev => {
+  const t = ev.target; if (!t.dataset || !t.dataset.tagin) return;
+  setTimeout(() => { const box = t.closest(".tagbox"); if (box && !box.contains(document.activeElement)) box.classList.remove("open"); }, 150);
+});
+$app.addEventListener("keydown", ev => {
+  const t = ev.target; if (!t.dataset || !t.dataset.tagin) return;
+  if (ev.isComposing || ev.keyCode === 229) return;
+  if (ev.key === "Enter") { ev.preventDefault(); if (t.value.trim()) addTags(t.dataset.tagin, t.value, true); else t.blur(); }
+  if (ev.key === "Backspace" && !t.value) { const c = tagCtx(t.dataset.tagin); if (c && c.tags.length) { c.set(c.tags.slice(0, -1)); render(); const el = document.querySelector(`.tag-in[data-tagin="${CSS.escape(t.dataset.tagin)}"]`); if (el) el.focus(); } }
+});
+// 候補をタップしても入力欄のフォーカスが外れないように
+document.addEventListener("pointerdown", ev => { if (ev.target.closest && ev.target.closest(".sugg")) ev.preventDefault(); }, true);
+$app.addEventListener("change", ev => {
+  const t = ev.target;
+  if (t.dataset.field && S.view === "card") {
+    const c = S.cards.find(x => x.id === S.cardId);
+    if (c && c[t.dataset.field] !== t.value) {
+      const patch = { [t.dataset.field]: t.value };
+      if (t.dataset.field === "answer") patch.answerByAI = false;
+      if (t.dataset.field === "explain") patch.explainByAI = false;
+      saveCard(c, patch).then(() => { if (S.view === "card") { const k = t.closest(".field").querySelector(".badge"); if (k) k.remove(); } });
+    }
+  }
+});
+
+/* ---------- boot ---------- */
+(async () => {
+  try {
+    const data = await Store.init();
+    S.pages = data.pages.map(cleanPage).filter(Boolean); S.cards = data.cards.map(cleanCard).filter(Boolean); S.view = "home";
+  } catch (e) { S.view = "error"; }
+  render();
+  document.querySelectorAll("textarea").forEach(t => { t.style.height = t.scrollHeight + "px"; });
+  if ("serviceWorker" in navigator && location.protocol === "https:") {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  }
+})();
+})();
+</script>
+</body>
+</html>
