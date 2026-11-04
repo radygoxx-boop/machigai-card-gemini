@@ -364,7 +364,7 @@ async function hydrateImages() {
 /* ---------- settings ---------- */
 const MODEL = "gemini-3.8-flash"; // 画像の範囲検出・解答読み取り・解説
 // Cloudflare Worker URL: 実際のURLに差し替えてください
-const WORKER_URL = "https://xxxxx.xxxxx.workers.dev";
+const WORKER_URL = "https://machigai-gemini-proxy.radygoxx.workers.dev/";
 // 既存のAI利用判定との互換性のため、Worker URLを設定値として返します
 const getKey = () => WORKER_URL;
 const blobToDataURL = b => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(b); });
